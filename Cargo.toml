@@ -1,0 +1,14 @@
+[package]
+name = "dubins_path"
+version = "0.0.1"
+repository = "https://github.com/gnxlxnxx/dubins_path"
+documentation = "https://docs.rs/dubins_path"
+keywords = ["pathfinder", "dubinspath"]
+categories = ["algorithms"]
+readme = "README.md"
+license = "Apache-2.0/MIT"
+authors = ["Roman Kretschmer <gnxlxnxx@web.de>"]
+edition = "2018"
+
+
+[dependencies]
