@@ -7,13 +7,11 @@
 //!
 //! Every struct defined here is 2 dimensional and uses f64
 
-use euclid::Angle;
+use euclid::{Angle, Point2D, Rotation2D, UnknownUnit};
 
-/// Point
-pub struct Point {
-    pub x: f64,
-    pub y: f64,
-}
+type Point = Point2D<f64, UnknownUnit>;
+type Vector2D = euclid::Vector2D<f64, UnknownUnit>;
+type Rotation = Rotation2D<f64, UnknownUnit, UnknownUnit>;
 
 /// Vector with origin, angle and magnitude
 pub struct Vector {
@@ -54,22 +52,19 @@ pub fn rsr(end: Vector) -> Result<RouteCSC, ()> {
     let mut route_csc = RouteCSC {
         start: CircleRoute {
             circle: Circle {
-                center: Point {
-                    x: end.magnitude,
-                    y: 0.0,
-                },
+                center: Point::new(end.magnitude, 0.0),
                 radius: end.magnitude,
             },
             angle: Angle::zero(),
         },
         tangent: Vector {
-            origin: Point { x: 0.0, y: 0.0 },
+            origin: Point::zero(),
             angle: Angle::zero(),
             magnitude: 0.0,
         },
         end: CircleRoute {
             circle: Circle {
-                center: Point { x: 0.0, y: 0.0 },
+                center: Point::zero(),
                 radius: end.magnitude,
             },
             angle: Angle::zero(),
@@ -79,11 +74,11 @@ pub fn rsr(end: Vector) -> Result<RouteCSC, ()> {
     // get the center point by adding the end vector to the end point
     // this works because the argument is the angle in positive y direction
     // not positive x direction so we dont have to rotate it here anymore
-    // the angle has to be counter clockwise though (thats why 2π - end.angle)
-    route_csc.end.circle.center = Point {
-        x: end.origin.x + end.magnitude * (Angle::two_pi() - end.angle).get().cos(),
-        y: end.origin.y + end.magnitude * (Angle::two_pi() - end.angle).get().sin(),
-    };
+    // the angle has to be counter clockwise though (thats why we use the inverse end.angle)
+    route_csc.end.circle.center = end.origin
+        + Rotation::new(end.angle)
+            .inverse()
+            .transform_vector(Vector2D::new(end.magnitude, 0.0));
 
     // get the tangent pitch which is the same as the pitch between the two
     // circle centers since our circles have the same radius
@@ -112,12 +107,9 @@ pub fn rsr(end: Vector) -> Result<RouteCSC, ()> {
 
     // get the tangent origin by moving the vector from the start circle center
     // 90° to it's own direction and the magnitude of the circle radius
-    route_csc.tangent.origin = Point {
-        x: route_csc.start.circle.center.x
-            + route_csc.start.circle.radius * (Angle::pi() - route_csc.start.angle).get().cos(),
-        y: route_csc.start.circle.center.y
-            + route_csc.start.circle.radius * (Angle::pi() - route_csc.start.angle).get().sin(),
-    };
+    route_csc.tangent.origin = route_csc.start.circle.center
+        + Rotation::new(Angle::pi() - end.angle)
+            .transform_vector(Vector2D::new(route_csc.start.circle.radius, 0.0));
 
     // get the angle of the start circle
     // the angle where we start from the tangent equals the one we finish
@@ -132,22 +124,19 @@ pub fn lsl(end: Vector) -> Result<RouteCSC, ()> {
     let mut route_csc = RouteCSC {
         start: CircleRoute {
             circle: Circle {
-                center: Point {
-                    x: -end.magnitude,
-                    y: 0.0,
-                },
+                center: Point::new(-end.magnitude, 0.0),
                 radius: end.magnitude,
             },
             angle: Angle::zero(),
         },
         tangent: Vector {
-            origin: Point { x: 0.0, y: 0.0 },
+            origin: Point::zero(),
             angle: Angle::zero(),
             magnitude: 0.0,
         },
         end: CircleRoute {
             circle: Circle {
-                center: Point { x: 0.0, y: 0.0 },
+                center: Point::zero(),
                 radius: end.magnitude,
             },
             angle: Angle::zero(),
@@ -158,10 +147,9 @@ pub fn lsl(end: Vector) -> Result<RouteCSC, ()> {
     // we have to rotate the vector π (π/2 because the given angle is from the y axis
     // and π/2 more to not get the tangent but the vector to the center point)
     // and again we have to use the counter clockwise direction
-    route_csc.end.circle.center = Point {
-        x: end.origin.x + end.magnitude * (Angle::pi() - end.angle).get().cos(),
-        y: end.origin.y + end.magnitude * (Angle::pi() - end.angle).get().sin(),
-    };
+    route_csc.end.circle.center = end.origin
+        + Rotation::new(Angle::pi() - end.angle)
+            .transform_vector(Vector2D::new(end.magnitude, 0.0));
 
     // get the tangent pitch which is the same as the pitch between the two
     // circle centers since our circles have the same radius
@@ -195,12 +183,9 @@ pub fn lsl(end: Vector) -> Result<RouteCSC, ()> {
 
     // get the tangent origin by moving the vector from the start circle center
     // 90° to it's own direction and the magnitude of the circle radius
-    route_csc.tangent.origin = Point {
-        x: route_csc.start.circle.center.x
-            + route_csc.start.circle.radius * route_csc.start.angle.get().cos(),
-        y: route_csc.start.circle.center.y
-            + route_csc.start.circle.radius * route_csc.start.angle.get().sin(),
-    };
+    route_csc.tangent.origin = route_csc.start.circle.center
+        + Rotation::new(route_csc.start.angle)
+            .transform_vector(Vector2D::new(route_csc.start.circle.radius, 0.0));
 
     // get the angle of the start circle
     // the angle where we start from the tangent equals the one we finish
@@ -215,22 +200,19 @@ pub fn rsl(end: Vector) -> Result<RouteCSC, ()> {
     let mut route_csc = RouteCSC {
         start: CircleRoute {
             circle: Circle {
-                center: Point {
-                    x: end.magnitude,
-                    y: 0.0,
-                },
+                center: Point::new(end.magnitude, 0.0),
                 radius: end.magnitude,
             },
             angle: Angle::zero(),
         },
         tangent: Vector {
-            origin: Point { x: 0.0, y: 0.0 },
+            origin: Point::zero(),
             angle: Angle::zero(),
             magnitude: 0.0,
         },
         end: CircleRoute {
             circle: Circle {
-                center: Point { x: 0.0, y: 0.0 },
+                center: Point::zero(),
                 radius: end.magnitude,
             },
             angle: Angle::zero(),
@@ -241,10 +223,9 @@ pub fn rsl(end: Vector) -> Result<RouteCSC, ()> {
     // we have to rotate the vector π (π/2 because the given angle is from the y axis
     // and π/2 more to not get the tangent but the vector to the center point)
     // and again we have to use the counter clockwise direction
-    route_csc.end.circle.center = Point {
-        x: end.origin.x + end.magnitude * (Angle::pi() - end.angle).get().cos(),
-        y: end.origin.y + end.magnitude * (Angle::pi() - end.angle).get().sin(),
-    };
+    route_csc.end.circle.center = end.origin
+        + Rotation::new(Angle::pi() - end.angle)
+            .transform_vector(Vector2D::new(end.magnitude, 0.0));
 
     // check if inside tangent can even be constructed
     if ((route_csc.end.circle.center.x - route_csc.start.circle.center.x).powi(2)
@@ -263,10 +244,11 @@ pub fn rsl(end: Vector) -> Result<RouteCSC, ()> {
         .sqrt();
 
     // tangent middle is the same as the middle of the straight from the center of the start
-    let tangent_middle = Point {
-        x: (route_csc.end.circle.center.x + route_csc.start.circle.center.x) / 2.0,
-        y: (route_csc.end.circle.center.y + route_csc.start.circle.center.y) / 2.0,
-    };
+    let tangent_middle = route_csc
+        .end
+        .circle
+        .center
+        .lerp(route_csc.start.circle.center, 0.5);
 
     // get the tangent angle
     route_csc.tangent.angle = Angle::radians(
@@ -288,12 +270,9 @@ pub fn rsl(end: Vector) -> Result<RouteCSC, ()> {
 
     // get the tangent origin by moving the vector from the start circle center
     // along its right angle vector
-    route_csc.tangent.origin = Point {
-        x: route_csc.start.circle.center.x
-            + route_csc.start.circle.radius * (Angle::pi() - route_csc.start.angle).get().cos(),
-        y: route_csc.start.circle.center.y
-            + route_csc.start.circle.radius * (Angle::pi() - route_csc.start.angle).get().sin(),
-    };
+    route_csc.tangent.origin = route_csc.start.circle.center
+        + Rotation::new(Angle::pi() - route_csc.start.angle)
+            .transform_vector(Vector2D::new(route_csc.start.circle.radius, 0.0));
 
     // get the angle of the end circle
     route_csc.end.angle = ((Angle::frac_pi_2() - end.angle) - route_csc.tangent.angle).positive();
@@ -306,22 +285,19 @@ pub fn lsr(end: Vector) -> Result<RouteCSC, ()> {
     let mut route_csc = RouteCSC {
         start: CircleRoute {
             circle: Circle {
-                center: Point {
-                    x: -end.magnitude,
-                    y: 0.0,
-                },
+                center: Point::new(-end.magnitude, 0.0),
                 radius: end.magnitude,
             },
             angle: Angle::zero(),
         },
         tangent: Vector {
-            origin: Point { x: 0.0, y: 0.0 },
+            origin: Point::zero(),
             angle: Angle::zero(),
             magnitude: 0.0,
         },
         end: CircleRoute {
             circle: Circle {
-                center: Point { x: 0.0, y: 0.0 },
+                center: Point::zero(),
                 radius: end.magnitude,
             },
             angle: Angle::zero(),
@@ -332,10 +308,10 @@ pub fn lsr(end: Vector) -> Result<RouteCSC, ()> {
     // this works because the argument is the angle in positive y direction
     // not positive x direction so we dont have to rotate it here anymore
     // the angle has to be counter clockwise though (thats why 2π - end.angle)
-    route_csc.end.circle.center = Point {
-        x: end.origin.x + end.magnitude * (Angle::two_pi() - end.angle).get().cos(),
-        y: end.origin.y + end.magnitude * (Angle::two_pi() - end.angle).get().sin(),
-    };
+    route_csc.end.circle.center = end.origin
+        + Rotation::new(end.angle)
+            .inverse()
+            .transform_vector(Vector2D::new(end.magnitude, 0.0));
 
     // check if inside tangent can even be constructed
     if ((route_csc.end.circle.center.x - route_csc.start.circle.center.x).powi(2)
@@ -354,10 +330,11 @@ pub fn lsr(end: Vector) -> Result<RouteCSC, ()> {
         .sqrt();
 
     // tangent middle is the same as the middle of the straight from the center of the start
-    let tangent_middle = Point {
-        x: (route_csc.end.circle.center.x + route_csc.start.circle.center.x) / 2.0,
-        y: (route_csc.end.circle.center.y + route_csc.start.circle.center.y) / 2.0,
-    };
+    let tangent_middle = route_csc
+        .end
+        .circle
+        .center
+        .lerp(route_csc.start.circle.center, 0.5);
 
     // get the tangent angle
     route_csc.tangent.angle = Angle::radians(
@@ -379,12 +356,9 @@ pub fn lsr(end: Vector) -> Result<RouteCSC, ()> {
 
     // get the tangent origin by moving the vector from the start circle center
     // 90° to it's own direction and the magnitude of the circle radius
-    route_csc.tangent.origin = Point {
-        x: route_csc.start.circle.center.x
-            + route_csc.start.circle.radius * route_csc.start.angle.get().cos(),
-        y: route_csc.start.circle.center.y
-            + route_csc.start.circle.radius * route_csc.start.angle.get().sin(),
-    };
+    route_csc.tangent.origin = route_csc.start.circle.center
+        + Rotation::new(route_csc.start.angle)
+            .transform_vector(Vector2D::new(route_csc.start.circle.radius, 0.0));
 
     // get the angle of the end circle
     route_csc.end.angle = ((Angle::frac_pi_2() - end.angle) - route_csc.tangent.angle).positive();
