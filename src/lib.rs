@@ -7,16 +7,17 @@
 //!
 //! Every struct defined here is 2 dimensional and uses f64
 
-use euclid::{Angle, Point2D, Rotation2D, UnknownUnit};
+use euclid::{Point2D, Rotation2D, UnknownUnit};
 
-type Point = Point2D<f64, UnknownUnit>;
+pub type Angle = euclid::Angle<f64>;
+pub type Point = Point2D<f64, UnknownUnit>;
 type Vector2D = euclid::Vector2D<f64, UnknownUnit>;
 type Rotation = Rotation2D<f64, UnknownUnit, UnknownUnit>;
 
 /// Vector with origin, angle and magnitude
 pub struct Vector {
     pub origin: Point,
-    pub angle: Angle<f64>,
+    pub angle: Angle,
     pub magnitude: f64,
 }
 
@@ -29,7 +30,7 @@ pub struct Circle {
 /// Circle route with a circle and a angle for how long to drive on this circle
 pub struct CircleRoute {
     pub circle: Circle,
-    pub angle: Angle<f64>,
+    pub angle: Angle,
 }
 
 /// Route with a start Circle, a tangent straight and a end Circle (eg. rsl, rsr, lsr, lsl)
