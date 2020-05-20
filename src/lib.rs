@@ -100,8 +100,8 @@ pub fn rsr(end: Vector) -> Result<RouteCSC, ()> {
     // get the tangent magnitude this, again, is the same as the distance
     // between the two circle centers since our circles have the same radius
     route_csc.tangent.magnitude =
-        ((route_csc.end.circle.center.x - route_csc.start.circle.center.x).powf(2.0)
-            + (route_csc.end.circle.center.y - route_csc.start.circle.center.y).powf(2.0))
+        ((route_csc.end.circle.center.x - route_csc.start.circle.center.x).powi(2)
+            + (route_csc.end.circle.center.y - route_csc.start.circle.center.y).powi(2))
         .sqrt();
 
     // get the angle of the start circle
@@ -200,10 +200,10 @@ pub fn lsl(end: Vector) -> Result<RouteCSC, ()> {
     route_csc.tangent.magnitude = ((route_csc.end.circle.center.x
         - route_csc.start.circle.center.x)
         .abs()
-        .powf(2.0)
+        .powi(2)
         + (route_csc.end.circle.center.y - route_csc.start.circle.center.y)
             .abs()
-            .powf(2.0))
+            .powi(2))
     .sqrt();
 
     // get the angle of the start circle
@@ -279,8 +279,8 @@ pub fn rsl(end: Vector) -> Result<RouteCSC, ()> {
     };
 
     // check if inside tangent can even be constructed
-    if ((route_csc.end.circle.center.x - route_csc.start.circle.center.x).powf(2.0)
-        + (route_csc.end.circle.center.y - route_csc.start.circle.center.y).powf(2.0))
+    if ((route_csc.end.circle.center.x - route_csc.start.circle.center.x).powi(2)
+        + (route_csc.end.circle.center.y - route_csc.start.circle.center.y).powi(2))
     .sqrt()
         < 2.0 * end.magnitude
     {
@@ -289,9 +289,9 @@ pub fn rsl(end: Vector) -> Result<RouteCSC, ()> {
 
     // get the tangent length via some simple trigonometry
     route_csc.tangent.magnitude =
-        ((route_csc.end.circle.center.x - route_csc.start.circle.center.x).powf(2.0)
-            + (route_csc.end.circle.center.y - route_csc.start.circle.center.y).powf(2.0)
-            - (2.0 * end.magnitude).powf(2.0))
+        ((route_csc.end.circle.center.x - route_csc.start.circle.center.x).powi(2)
+            + (route_csc.end.circle.center.y - route_csc.start.circle.center.y).powi(2)
+            - (2.0 * end.magnitude).powi(2))
         .sqrt();
 
     // tangent middle is the same as the middle of the straight from the center of the start
@@ -387,8 +387,8 @@ pub fn lsr(end: Vector) -> Result<RouteCSC, ()> {
     };
 
     // check if inside tangent can even be constructed
-    if ((route_csc.end.circle.center.x - route_csc.start.circle.center.x).powf(2.0)
-        + (route_csc.end.circle.center.y - route_csc.start.circle.center.y).powf(2.0))
+    if ((route_csc.end.circle.center.x - route_csc.start.circle.center.x).powi(2)
+        + (route_csc.end.circle.center.y - route_csc.start.circle.center.y).powi(2))
     .sqrt()
         < 2.0 * end.magnitude
     {
@@ -397,9 +397,9 @@ pub fn lsr(end: Vector) -> Result<RouteCSC, ()> {
 
     // get the tangent length via some simple trigonometry
     route_csc.tangent.magnitude =
-        ((route_csc.end.circle.center.x - route_csc.start.circle.center.x).powf(2.0)
-            + (route_csc.end.circle.center.y - route_csc.start.circle.center.y).powf(2.0)
-            - (2.0 * end.magnitude).powf(2.0))
+        ((route_csc.end.circle.center.x - route_csc.start.circle.center.x).powi(2)
+            + (route_csc.end.circle.center.y - route_csc.start.circle.center.y).powi(2)
+            - (2.0 * end.magnitude).powi(2))
         .sqrt();
 
     // tangent middle is the same as the middle of the straight from the center of the start
