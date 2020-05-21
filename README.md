@@ -12,6 +12,7 @@ this is a crate which calculates [dubins paths](https://en.wikipedia.org/wiki/Du
 Licensed under either of 
  - Apache License, Version 2.0 ( [LICENSE-APACHE](LICENSE-APACHE-2.0) or [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0)) 
  - MIT license ( [LICENSE-MIT](LICENSE-MIT) or [https://opensource.org/licenses/MIT](https://opensource.org/licenses/MIT))
+
 at your option
 
 ## Contribution
