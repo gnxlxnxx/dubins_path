@@ -3,7 +3,7 @@
 //!  - the end angle as angle in degrees in clockwise direction (eg. 0° facing north, 90° facing east, ...)
 //!  - the circle radius as magnitude
 //!
-//! Start Vector is in the origin facing in positive x-direction
+//! Start Vector is in the origin facing in positive y-direction
 //!
 //! Every struct defined here is 2 dimensional and uses f64
 
