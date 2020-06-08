@@ -81,7 +81,7 @@ mod tests {
             angle: Angle::zero(),
             magnitude: radius,
         };
-        rsl(test_point).unwrap();
+        RouteCSC::rsl(test_point).unwrap();
     }
 
     #[test]
@@ -93,7 +93,7 @@ mod tests {
             angle: Angle::zero(),
             magnitude: radius,
         };
-        lsr(test_point).unwrap();
+        RouteCSC::lsr(test_point).unwrap();
     }
 
     #[test]
@@ -123,7 +123,7 @@ mod tests {
                 },
             };
 
-            let result_rsr = rsr(test_point).unwrap();
+            let result_rsr = RouteCSC::rsr(test_point).unwrap();
 
             circle_in_error_margin(result_rsr.start, expected_result_rsr.start).unwrap();
             vector_in_error_margin(result_rsr.tangent, expected_result_rsr.tangent).unwrap();
@@ -158,7 +158,7 @@ mod tests {
                 },
             };
 
-            let result_rsl = rsl(test_point).unwrap();
+            let result_rsl = RouteCSC::rsl(test_point).unwrap();
 
             circle_in_error_margin(result_rsl.start, expected_result_rsl.start).unwrap();
             vector_in_error_margin(result_rsl.tangent, expected_result_rsl.tangent).unwrap();
@@ -193,7 +193,7 @@ mod tests {
                 },
             };
 
-            let result_lsl = lsl(test_point).unwrap();
+            let result_lsl = RouteCSC::lsl(test_point).unwrap();
 
             circle_in_error_margin(result_lsl.start, expected_result_lsl.start).unwrap();
             vector_in_error_margin(result_lsl.tangent, expected_result_lsl.tangent).unwrap();
@@ -228,7 +228,7 @@ mod tests {
                 },
             };
 
-            let result_lsr = lsr(test_point).unwrap();
+            let result_lsr = RouteCSC::lsr(test_point).unwrap();
 
             circle_in_error_margin(result_lsr.start, expected_result_lsr.start).unwrap();
             vector_in_error_margin(result_lsr.tangent, expected_result_lsr.tangent).unwrap();
