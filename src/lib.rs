@@ -8,13 +8,23 @@
 //! Every struct defined here is 2 dimensional and uses f64
 
 use euclid::{Point2D, Rotation2D, UnknownUnit};
+use thiserror::Error;
 
 pub type Angle = euclid::Angle<f64>;
 pub type Point = Point2D<f64, UnknownUnit>;
 type Vector2D = euclid::Vector2D<f64, UnknownUnit>;
 type Rotation = Rotation2D<f64, UnknownUnit, UnknownUnit>;
 
+#[derive(Debug, Error)]
+pub enum Error {
+    #[error("inside tangent cannot be constructed (circles too close together)")]
+    CirclesTooClose,
+    #[error("ccc path cannot be constructed (circles too far apart)")]
+    CirclesTooFarApart,
+}
+
 /// Vector with origin, angle and magnitude
+#[derive(Debug)]
 pub struct Vector {
     pub origin: Point,
     pub angle: Angle,
@@ -22,21 +32,23 @@ pub struct Vector {
 }
 
 /// Circle vector (Circle + Angle)
+#[derive(Debug)]
 pub struct CircleVector {
     pub center: Point,
     pub radius: f64,
     pub angle: Angle,
 }
 
-/// Route with a start Circle, a tangent straight and a end Circle (eg. rsl, rsr, lsr, lsl)
+/// Route with a start Circle, a tangent straight and a end Circle
+#[derive(Debug)]
 pub struct RouteCSC {
     pub start: CircleVector,
     pub tangent: Vector,
     pub end: CircleVector,
 }
 
-/// Route with 3 Circles (eg. rlr, lrl) (not yet implemented)
-#[allow(unused)]
+/// Route with 3 Circles
+#[derive(Debug)]
 pub struct RouteCCC {
     pub start: CircleVector,
     pub middle: CircleVector,
@@ -46,7 +58,7 @@ pub struct RouteCCC {
 /// Route with a start Circle, a tangent straight and a end Circle
 impl RouteCSC {
     /// right straight right route
-    pub fn rsr(end: Vector) -> Result<Self, ()> {
+    pub fn rsr(end: Vector) -> Result<Self, Error> {
         let mut route_csc = RouteCSC {
             start: CircleVector {
                 center: Point::new(end.magnitude, 0.0),
@@ -113,7 +125,7 @@ impl RouteCSC {
     }
 
     /// left straight left route
-    pub fn lsl(end: Vector) -> Result<Self, ()> {
+    pub fn lsl(end: Vector) -> Result<Self, Error> {
         let mut route_csc = RouteCSC {
             start: CircleVector {
                 center: Point::new(-end.magnitude, 0.0),
@@ -184,7 +196,7 @@ impl RouteCSC {
     }
 
     /// right straight left route
-    pub fn rsl(end: Vector) -> Result<Self, ()> {
+    pub fn rsl(end: Vector) -> Result<Self, Error> {
         let mut route_csc = RouteCSC {
             start: CircleVector {
                 center: Point::new(end.magnitude, 0.0),
@@ -217,7 +229,7 @@ impl RouteCSC {
         .sqrt()
             < 2.0 * end.magnitude
         {
-            return Err(());
+            return Err(Error::CirclesTooClose);
         }
 
         // get the tangent length via some simple trigonometry
@@ -261,7 +273,7 @@ impl RouteCSC {
     }
 
     /// left straight right route
-    pub fn lsr(end: Vector) -> Result<Self, ()> {
+    pub fn lsr(end: Vector) -> Result<Self, Error> {
         let mut route_csc = RouteCSC {
             start: CircleVector {
                 center: Point::new(-end.magnitude, 0.0),
@@ -295,7 +307,7 @@ impl RouteCSC {
         .sqrt()
             < 2.0 * end.magnitude
         {
-            return Err(());
+            return Err(Error::CirclesTooClose);
         }
 
         // get the tangent length via some simple trigonometry

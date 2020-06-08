@@ -16,3 +16,4 @@ edition = "2018"
 
 [dependencies]
 euclid = "0.20.11"
+thiserror = "1.0"
