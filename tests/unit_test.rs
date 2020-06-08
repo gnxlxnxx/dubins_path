@@ -1,74 +1,36 @@
 #[cfg(test)]
 mod tests {
     use dubins_path::*;
-
-    const ERROR: f64 = 0.000000000000001;
+    use float_cmp::approx_eq;
 
     fn circle_in_error_margin(
         result: CircleVector,
         expected_result: CircleVector,
     ) -> Result<(), ()> {
-        if result.center.x - expected_result.center.x > ERROR {
-            return Err(());
-        }
-        if result.center.x - expected_result.center.x < -ERROR {
-            return Err(());
-        }
-        if result.center.y - expected_result.center.y > ERROR {
-            return Err(());
-        }
-        if result.center.y - expected_result.center.y < -ERROR {
-            return Err(());
-        }
-        if result.radius - expected_result.radius > ERROR {
-            return Err(());
-        }
-        if result.radius - expected_result.radius < -ERROR {
-            return Err(());
-        }
-        if result.angle.radians - expected_result.angle.radians > ERROR
-            && result.angle.signed().radians - expected_result.angle.signed().radians > ERROR
-        {
-            return Err(());
-        }
-
-        if result.angle.radians - expected_result.angle.radians < -ERROR
-            && result.angle.signed().radians - expected_result.angle.signed().radians < -ERROR
-        {
-            return Err(());
-        }
+        assert!(approx_eq!(f64, result.center.x, expected_result.center.x));
+        assert!(approx_eq!(f64, result.center.x, expected_result.center.x));
+        assert!(approx_eq!(f64, result.center.y, expected_result.center.y));
+        assert!(approx_eq!(f64, result.center.y, expected_result.center.y));
+        assert!(approx_eq!(f64, result.radius, expected_result.radius));
+        assert!(approx_eq!(f64, result.radius, expected_result.radius));
+        assert!(approx_eq!(f64, result.angle.radians, expected_result.angle.radians) ||
+        	    approx_eq!(f64, result.angle.signed().radians, expected_result.angle.signed().radians));
+        assert!(approx_eq!(f64, result.angle.radians, expected_result.angle.radians) ||
+                approx_eq!(f64, result.angle.signed().radians, expected_result.angle.signed().radians));
         Ok(())
     }
 
     fn vector_in_error_margin(result: Vector, expected_result: Vector) -> Result<(), ()> {
-        if result.origin.x - expected_result.origin.x > ERROR {
-            return Err(());
-        }
-        if result.origin.x - expected_result.origin.x < -ERROR {
-            return Err(());
-        }
-        if result.origin.y - expected_result.origin.y > ERROR {
-            return Err(());
-        }
-        if result.origin.y - expected_result.origin.y < -ERROR {
-            return Err(());
-        }
-        if result.angle.radians - expected_result.angle.radians > ERROR
-            || result.angle.signed().radians - expected_result.angle.signed().radians > ERROR
-        {
-            return Err(());
-        }
-        if result.angle.radians - expected_result.angle.radians < -ERROR
-            || result.angle.signed().radians - expected_result.angle.signed().radians < -ERROR
-        {
-            return Err(());
-        }
-        if result.magnitude - expected_result.magnitude > ERROR {
-            return Err(());
-        }
-        if result.magnitude - expected_result.magnitude < -ERROR {
-            return Err(());
-        }
+        assert!(approx_eq!(f64, result.origin.x, expected_result.origin.x));
+        assert!(approx_eq!(f64, result.origin.x, expected_result.origin.x));
+        assert!(approx_eq!(f64, result.origin.y, expected_result.origin.y));
+        assert!(approx_eq!(f64, result.origin.y, expected_result.origin.y));
+        assert!(approx_eq!(f64, result.angle.radians, expected_result.angle.radians) ||
+                approx_eq!(f64, result.angle.signed().radians, expected_result.angle.signed().radians));
+        assert!(approx_eq!(f64, result.angle.radians, expected_result.angle.radians) ||
+        	    approx_eq!(f64, result.angle.signed().radians, expected_result.angle.signed().radians));
+        assert!(approx_eq!(f64, result.magnitude, expected_result.magnitude));
+        assert!(approx_eq!(f64, result.magnitude, expected_result.magnitude));
         Ok(())
     }
 
