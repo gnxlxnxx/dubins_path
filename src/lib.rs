@@ -351,17 +351,3 @@ impl RouteCSC {
     }
 }
 
-    // get the angle of the start circle
-    route_csc.start.angle = (route_csc.tangent.angle - Angle::frac_pi_2()).positive();
-
-    // get the tangent origin by moving the vector from the start circle center
-    // 90° to it's own direction and the magnitude of the circle radius
-    route_csc.tangent.origin = route_csc.start.center
-        + Rotation::new(route_csc.start.angle)
-            .transform_vector(Vector2D::new(route_csc.start.radius, 0.0));
-
-    // get the angle of the end circle
-    route_csc.end.angle = ((Angle::frac_pi_2() - end.angle) - route_csc.tangent.angle).positive();
-
-    Ok(route_csc)
-}
