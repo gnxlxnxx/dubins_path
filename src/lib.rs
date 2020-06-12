@@ -24,7 +24,7 @@ pub enum Error {
 }
 
 /// Vector with origin, angle and magnitude
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct Vector {
     pub origin: Point,
     pub angle: Angle,
@@ -32,15 +32,22 @@ pub struct Vector {
 }
 
 /// Circle vector (Circle + Angle)
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct CircleVector {
     pub center: Point,
     pub radius: f64,
     pub angle: Angle,
 }
 
+impl CircleVector {
+    ///get the length of the circle vector
+    pub fn get_length(&self) -> f64 {
+        self.angle.radians * self.radius
+    }
+}
+
 /// Route with a start Circle, a tangent straight and a end Circle
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct RouteCSC {
     pub start: CircleVector,
     pub tangent: Vector,
@@ -48,11 +55,17 @@ pub struct RouteCSC {
 }
 
 /// Route with 3 Circles
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct RouteCCC {
     pub start: CircleVector,
     pub middle: CircleVector,
     pub end: CircleVector,
+}
+
+#[derive(Debug, Copy, Clone)]
+pub enum Path {
+    CSC(RouteCSC),
+    CCC(RouteCCC),
 }
 
 /// Route with a start Circle, a tangent straight and a end Circle
@@ -346,6 +359,38 @@ impl RouteCSC {
         // get the angle of the end circle
         route_csc.end.angle =
             ((Angle::frac_pi_2() - end.angle) - route_csc.tangent.angle).positive();
+
+        Ok(route_csc)
+    }
+
+    /// get the length of the path
+    pub fn get_length(&self) -> f64 {
+        self.start.get_length() + self.tangent.magnitude + self.end.get_length()
+    }
+
+    /// get the shortest circle straight circle route
+    pub fn get_shortest(end: Vector) -> Result<Self, Error> {
+        let mut route_csc;
+
+        let route_rsr = Self::rsr(end).unwrap();
+        let route_lsl = Self::rsr(end).unwrap();
+        let route_lsr = Self::rsr(end);
+        let route_rsl = Self::rsr(end);
+
+        route_csc = route_rsr;
+        if route_lsl.get_length() < route_csc.get_length() {
+            route_csc = route_lsl;
+        }
+        if let Ok(route_lsr) = route_lsr {
+            if route_lsr.get_length() < route_csc.get_length() {
+                route_csc = route_lsr;
+            }
+        }
+        if let Ok(route_rsl) = route_rsl {
+            if route_rsl.get_length() < route_csc.get_length() {
+                route_csc = route_rsl;
+            }
+        }
 
         Ok(route_csc)
     }
