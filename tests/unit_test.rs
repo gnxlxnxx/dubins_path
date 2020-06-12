@@ -1,37 +1,33 @@
 #[cfg(test)]
 mod tests {
     use dubins_path::*;
-    use float_cmp::approx_eq;
+    use euclid::approxeq::ApproxEq;
 
     fn circle_in_error_margin(
         result: CircleVector,
         expected_result: CircleVector,
     ) -> Result<(), ()> {
-        assert!(approx_eq!(f64, result.center.x, expected_result.center.x));
-        assert!(approx_eq!(f64, result.center.x, expected_result.center.x));
-        assert!(approx_eq!(f64, result.center.y, expected_result.center.y));
-        assert!(approx_eq!(f64, result.center.y, expected_result.center.y));
-        assert!(approx_eq!(f64, result.radius, expected_result.radius));
-        assert!(approx_eq!(f64, result.radius, expected_result.radius));
-        assert!(approx_eq!(f64, result.angle.radians, expected_result.angle.radians) ||
-        	    approx_eq!(f64, result.angle.signed().radians, expected_result.angle.signed().radians));
-        assert!(approx_eq!(f64, result.angle.radians, expected_result.angle.radians) ||
-                approx_eq!(f64, result.angle.signed().radians, expected_result.angle.signed().radians));
-        Ok(())
+        if !ApproxEq::approx_eq(&result.center, &expected_result.center)
+            || !ApproxEq::approx_eq(&result.radius, &expected_result.radius)
+            || !(ApproxEq::approx_eq(&result.angle, &expected_result.angle)
+                || ApproxEq::approx_eq(&result.angle.signed(), &expected_result.angle.signed()))
+        {
+            Err(())
+        } else {
+            Ok(())
+        }
     }
 
     fn vector_in_error_margin(result: Vector, expected_result: Vector) -> Result<(), ()> {
-        assert!(approx_eq!(f64, result.origin.x, expected_result.origin.x));
-        assert!(approx_eq!(f64, result.origin.x, expected_result.origin.x));
-        assert!(approx_eq!(f64, result.origin.y, expected_result.origin.y));
-        assert!(approx_eq!(f64, result.origin.y, expected_result.origin.y));
-        assert!(approx_eq!(f64, result.angle.radians, expected_result.angle.radians) ||
-                approx_eq!(f64, result.angle.signed().radians, expected_result.angle.signed().radians));
-        assert!(approx_eq!(f64, result.angle.radians, expected_result.angle.radians) ||
-        	    approx_eq!(f64, result.angle.signed().radians, expected_result.angle.signed().radians));
-        assert!(approx_eq!(f64, result.magnitude, expected_result.magnitude));
-        assert!(approx_eq!(f64, result.magnitude, expected_result.magnitude));
-        Ok(())
+        if !ApproxEq::approx_eq(&result.origin, &expected_result.origin)
+            || !ApproxEq::approx_eq(&result.magnitude, &expected_result.magnitude)
+            || !(ApproxEq::approx_eq(&result.angle, &expected_result.angle)
+                || ApproxEq::approx_eq(&result.angle.signed(), &expected_result.angle.signed()))
+        {
+            Err(())
+        } else {
+            Ok(())
+        }
     }
 
     #[test]
