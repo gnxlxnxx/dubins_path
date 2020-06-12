@@ -1,6 +1,6 @@
 //! Call all functions with a Vector as argument the vector should contain:
 //!  - the end point as origin
-//!  - the end angle as angle in degrees in clockwise direction (eg. 0° facing north, 90° facing east, ...)
+//!  - the end angle as angle in degrees in clockwise direction (eg. 0° facing north, 90° (π/2) facing east, ...)
 //!  - the circle radius as magnitude
 //!
 //! Start Vector is in the origin facing in positive y-direction
@@ -109,7 +109,7 @@ impl RouteCSC {
 
         // if the end circle center x value is smaller than the
         // start circle center x value
-        // the angle would be 180° rotated so to prevent that:
+        // the angle would be rotated by π so to prevent that:
         if route_csc.end.center.x < route_csc.start.center.x {
             route_csc.tangent.angle += Angle::pi();
         }
@@ -124,7 +124,7 @@ impl RouteCSC {
         route_csc.start.angle = (Angle::frac_pi_2() - route_csc.tangent.angle).positive();
 
         // get the tangent origin by moving the vector from the start circle center
-        // 90° to it's own direction and the magnitude of the circle radius
+        // π/2 to it's own direction and the magnitude of the circle radius
         route_csc.tangent.origin = route_csc.start.center
             + Rotation::new(Angle::pi() - end.angle)
                 .transform_vector(Vector2D::new(route_csc.start.radius, 0.0));
@@ -195,7 +195,7 @@ impl RouteCSC {
         route_csc.start.angle = (route_csc.tangent.angle - Angle::frac_pi_2()).positive();
 
         // get the tangent origin by moving the vector from the start circle center
-        // 90° to it's own direction and the magnitude of the circle radius
+        // π/2 to it's own direction and the magnitude of the circle radius
         route_csc.tangent.origin = route_csc.start.center
             + Rotation::new(route_csc.start.angle)
                 .transform_vector(Vector2D::new(route_csc.start.radius, 0.0));
@@ -342,7 +342,7 @@ impl RouteCSC {
 
         // if the end circle center x value is smaller than the
         // start circle center x value
-        // the angle would be 180° rotated so to prevent that:
+        // the angle would rotated by π so to prevent that:
         if route_csc.end.center.x < route_csc.start.center.x {
             route_csc.tangent.angle += Angle::pi();
         }
@@ -351,7 +351,7 @@ impl RouteCSC {
         route_csc.start.angle = (route_csc.tangent.angle - Angle::frac_pi_2()).positive();
 
         // get the tangent origin by moving the vector from the start circle center
-        // 90° to it's own direction and the magnitude of the circle radius
+        // π/2 to it's own direction and the magnitude of the circle radius
         route_csc.tangent.origin = route_csc.start.center
             + Rotation::new(route_csc.start.angle)
                 .transform_vector(Vector2D::new(route_csc.start.radius, 0.0));
