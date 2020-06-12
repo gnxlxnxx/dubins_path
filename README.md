@@ -5,7 +5,6 @@ this is a crate which calculates [dubins paths](https://en.wikipedia.org/wiki/Du
 ## Status
 
 - I've tested some easy scenarios if you encounter any problems feel free to open an issue or PR
-- I have not looked into ccc paths yet but I'm gonna do that asap
 - This code is a little messy feel free to PR a cleanup ;)
 
 ## License

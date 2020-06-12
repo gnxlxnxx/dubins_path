@@ -396,3 +396,227 @@ impl RouteCSC {
     }
 }
 
+/// Route with 3 Circles
+impl RouteCCC {
+    /// right left right route (not working yet)
+    pub fn rlr(end: Vector) -> Result<Self, Error> {
+        let mut route_ccc = RouteCCC {
+            start: CircleVector {
+                center: Point::new(end.magnitude, 0.0),
+                radius: end.magnitude,
+                angle: Angle::zero(),
+            },
+            middle: CircleVector {
+                center: Point::zero(),
+                radius: 0.0,
+                angle: Angle::zero(),
+            },
+            end: CircleVector {
+                center: Point::zero(),
+                radius: end.magnitude,
+                angle: Angle::zero(),
+            },
+        };
+
+        // get the center point by adding the end vector to the end point
+        // this works because the argument is the angle in positive y direction
+        // not positive x direction so we dont have to rotate it here anymore
+        // the angle has to be counter clockwise though (thats why we use the inverse end.angle)
+        route_ccc.end.center = end.origin
+            + Rotation::new(end.angle)
+                .inverse()
+                .transform_vector(Vector2D::new(end.magnitude, 0.0));
+
+        // check if path can be constructed or if the circles are too far apart
+        if ((route_ccc.end.center.x - route_ccc.start.center.x).powi(2)
+            + (route_ccc.end.center.y - route_ccc.start.center.y).powi(2))
+        .sqrt()
+            > (4.0 * end.magnitude)
+        {
+            return Err(Error::CirclesTooFarApart);
+        }
+
+        let vector_start_center_middle_center: Vector2D;
+
+        route_ccc.middle.center = {
+            let vector_start_center_end_center = Vector2D::new(
+                route_ccc.end.center.x - route_ccc.start.center.x,
+                route_ccc.end.center.y - route_ccc.start.center.y,
+            );
+
+            let vector_start_center_end_center_magnitude =
+                (vector_start_center_end_center.x.powi(2)
+                    + vector_start_center_end_center.y.powi(2))
+                .sqrt();
+
+            let vector_start_center_middle_center_angle =
+                vector_start_center_end_center.angle_from_x_axis().radians
+                    + (vector_start_center_end_center_magnitude / (4.0 * end.magnitude)).acos();
+
+            vector_start_center_middle_center = Vector2D::new(
+                (2.0 * end.magnitude) * vector_start_center_middle_center_angle.cos(),
+                (2.0 * end.magnitude) * vector_start_center_middle_center_angle.sin(),
+            );
+
+            Point::new(
+                route_ccc.start.center.x + vector_start_center_middle_center.x,
+                route_ccc.start.center.y + vector_start_center_middle_center.y,
+            )
+        };
+
+        let vector_middle_center_end_center = Vector2D::new(
+            route_ccc.end.center.x - route_ccc.middle.center.x,
+            route_ccc.end.center.y - route_ccc.middle.center.y,
+        );
+
+        route_ccc.start.angle =
+            (Angle::pi() - vector_start_center_middle_center.angle_from_x_axis()).positive();
+
+        route_ccc.middle.angle = Rotation::new(Angle::pi())
+            .transform_vector(vector_start_center_middle_center)
+            .angle_to(vector_middle_center_end_center)
+            .positive();
+
+        route_ccc.end.angle = Rotation::new(Angle::pi())
+            .transform_vector(vector_middle_center_end_center)
+            .angle_to(Vector2D::new(
+                end.origin.x - route_ccc.end.center.x,
+                end.origin.y - route_ccc.end.center.y,
+            ))
+            .positive();
+
+        Ok(route_ccc)
+    }
+
+    /// left right left route (not working yet)
+    pub fn lrl(end: Vector) -> Result<Self, Error> {
+        let mut route_ccc = RouteCCC {
+            start: CircleVector {
+                center: Point::new(-end.magnitude, 0.0),
+                radius: end.magnitude,
+                angle: Angle::zero(),
+            },
+            middle: CircleVector {
+                center: Point::zero(),
+                radius: 0.0,
+                angle: Angle::zero(),
+            },
+            end: CircleVector {
+                center: Point::zero(),
+                radius: end.magnitude,
+                angle: Angle::zero(),
+            },
+        };
+
+        // get the center point by adding the end vector to the end point
+        // we have to rotate the vector π (π/2 because the given angle is from the y axis
+        // and π/2 more to not get the tangent but the vector to the center point)
+        // and again we have to use the counter clockwise direction
+        route_ccc.end.center = end.origin
+            + Rotation::new(Angle::pi() - end.angle)
+                .transform_vector(Vector2D::new(end.magnitude, 0.0));
+
+        // check if path can be constructed or if the circles are too far apart
+        if ((route_ccc.end.center.x - route_ccc.start.center.x).powi(2)
+            + (route_ccc.end.center.y - route_ccc.start.center.y).powi(2))
+        .sqrt()
+            > (4.0 * end.magnitude)
+        {
+            return Err(Error::CirclesTooFarApart);
+        }
+
+        let vector_start_center_middle_center: Vector2D;
+
+        route_ccc.middle.center = {
+            let vector_start_center_end_center = Vector2D::new(
+                route_ccc.end.center.x - route_ccc.start.center.x,
+                route_ccc.end.center.y - route_ccc.start.center.y,
+            );
+
+            let vector_start_center_end_center_magnitude =
+                (vector_start_center_end_center.x.powi(2)
+                    + vector_start_center_end_center.y.powi(2))
+                .sqrt();
+
+            let vector_start_center_middle_center_angle =
+                vector_start_center_end_center.angle_from_x_axis().radians
+                    - (vector_start_center_end_center_magnitude / (4.0 * end.magnitude)).acos();
+
+            vector_start_center_middle_center = Vector2D::new(
+                (2.0 * end.magnitude) * vector_start_center_middle_center_angle.cos(),
+                (2.0 * end.magnitude) * vector_start_center_middle_center_angle.sin(),
+            );
+
+            Point::new(
+                route_ccc.start.center.x + vector_start_center_middle_center.x,
+                route_ccc.start.center.y + vector_start_center_middle_center.y,
+            )
+        };
+
+        // TODO: Get the angles
+
+        let vector_middle_center_end_center = Vector2D::new(
+            route_ccc.end.center.x - route_ccc.middle.center.x,
+            route_ccc.end.center.y - route_ccc.middle.center.y,
+        );
+
+        route_ccc.start.angle = (vector_start_center_middle_center.angle_from_x_axis()).positive();
+
+        route_ccc.middle.angle = vector_middle_center_end_center
+            .angle_to(
+                Rotation::new(Angle::pi()).transform_vector(vector_start_center_middle_center),
+            )
+            .positive();
+
+        route_ccc.end.angle = Vector2D::new(
+            end.origin.x - route_ccc.end.center.x,
+            end.origin.y - route_ccc.end.center.y,
+        )
+        .angle_to(Rotation::new(Angle::pi()).transform_vector(vector_middle_center_end_center))
+        .positive();
+
+        Ok(route_ccc)
+    }
+
+    /// get the length of the path
+    pub fn get_length(&self) -> f64 {
+        self.start.get_length() + self.middle.get_length() + self.end.get_length()
+    }
+
+    /// get the shortest circle circle circle route
+    pub fn get_shortest(end: Vector) -> Result<Self, Error> {
+        let route_rlr = Self::rlr(end);
+        let route_lrl = Self::lrl(end);
+
+        if let Ok(route_rlr) = route_rlr {
+            if let Ok(route_lrl) = route_lrl {
+                if route_rlr.get_length() < route_lrl.get_length() {
+                    Ok(route_rlr)
+                } else {
+                    Ok(route_lrl)
+                }
+            } else {
+                Ok(route_rlr)
+            }
+        } else if let Ok(route_lrl) = route_lrl {
+            Ok(route_lrl)
+        } else {
+            Err(Error::CirclesTooFarApart)
+        }
+    }
+}
+
+/// get the shortest path
+pub fn get_shortest(end: Vector) -> Path {
+    let route_csc = RouteCSC::get_shortest(end).unwrap();
+    let route_ccc = RouteCCC::get_shortest(end);
+    if let Ok(route_ccc) = route_ccc {
+        if route_ccc.get_length() < route_csc.get_length() {
+            Path::CCC(route_ccc)
+        } else {
+            Path::CSC(route_csc)
+        }
+    } else {
+        Path::CSC(route_csc)
+    }
+}
