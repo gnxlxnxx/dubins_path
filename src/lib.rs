@@ -439,7 +439,7 @@ impl RouteCCC {
             },
             middle: CircleVector {
                 center: Point::zero(),
-                radius: 0.0,
+                radius: end.magnitude,
                 angle: Angle::zero(),
             },
             end: CircleVector {
@@ -529,7 +529,7 @@ impl RouteCCC {
             },
             middle: CircleVector {
                 center: Point::zero(),
-                radius: 0.0,
+                radius: end.magnitude,
                 angle: Angle::zero(),
             },
             end: CircleVector {
