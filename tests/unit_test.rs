@@ -27,6 +27,30 @@ mod tests {
     }
 
     #[test]
+    #[should_panic]
+    fn test_far_apart_circles_rlr() {
+        let radius = 0.5;
+        let test_point = Vector {
+            origin: Point::new(4.0, 0.0),
+            angle: Angle::zero(),
+            magnitude: radius,
+        };
+        RouteCCC::rlr(test_point).unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_far_apart_circles_lrl() {
+        let radius = 0.5;
+        let test_point = Vector {
+            origin: Point::new(-4.0, 0.0),
+            angle: Angle::zero(),
+            magnitude: radius,
+        };
+        RouteCCC::rlr(test_point).unwrap();
+    }
+
+    #[test]
     fn test_points_rsr() {
         {
             let radius = 0.5;
@@ -163,6 +187,76 @@ mod tests {
             assert!(result_lsr.start.approx_eq(expected_result_lsr.start));
             assert!(result_lsr.tangent.approx_eq(expected_result_lsr.tangent));
             assert!(result_lsr.end.approx_eq(expected_result_lsr.end));
+        }
+    }
+
+    #[test]
+    fn test_point_rlr() {
+        {
+            let radius = 0.5;
+            let test_point = Vector {
+                origin: Point::new(3.0, 0.0),
+                angle: Angle::pi(),
+                magnitude: radius,
+            };
+            let expected_result_rlr = RouteCCC {
+                start: CircleVector {
+                    center: Point::new(0.5, 0.0),
+                    radius: radius,
+                    angle: Angle::pi(),
+                },
+                middle: CircleVector {
+                    center: Point::new(1.5, 0.0),
+                    radius: radius,
+                    angle: Angle::pi(),
+                },
+                end: CircleVector {
+                    center: Point::new(2.5, 0.0),
+                    radius: radius,
+                    angle: Angle::pi(),
+                },
+            };
+
+            let result_rlr = RouteCCC::rlr(test_point).unwrap();
+
+            assert!(result_rlr.start.approx_eq(expected_result_rlr.start));
+            assert!(result_rlr.middle.approx_eq(expected_result_rlr.middle));
+            assert!(result_rlr.end.approx_eq(expected_result_rlr.end));
+        }
+    }
+
+    #[test]
+    fn test_point_lrl() {
+        {
+            let radius = 0.5;
+            let test_point = Vector {
+                origin: Point::new(-3.0, 0.0),
+                angle: Angle::pi(),
+                magnitude: radius,
+            };
+            let expected_result_lrl = RouteCCC {
+                start: CircleVector {
+                    center: Point::new(-0.5, 0.0),
+                    radius: radius,
+                    angle: Angle::pi(),
+                },
+                middle: CircleVector {
+                    center: Point::new(-1.5, 0.0),
+                    radius: radius,
+                    angle: Angle::pi(),
+                },
+                end: CircleVector {
+                    center: Point::new(-2.5, 0.0),
+                    radius: radius,
+                    angle: Angle::pi(),
+                },
+            };
+
+            let result_lrl = RouteCCC::lrl(test_point).unwrap();
+
+            assert!(result_lrl.start.approx_eq(expected_result_lrl.start));
+            assert!(result_lrl.middle.approx_eq(expected_result_lrl.middle));
+            assert!(result_lrl.end.approx_eq(expected_result_lrl.end));
         }
     }
 }
