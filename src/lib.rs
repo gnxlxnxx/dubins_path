@@ -38,8 +38,8 @@ impl Vector {
             false
         } else if !ApproxEq::approx_eq(&self.magnitude, &other.magnitude) {
             false
-        } else if !ApproxEq::approx_eq(&self.angle, &other.angle)
-            || !ApproxEq::approx_eq(&self.angle.signed(), &other.angle.signed())
+        } else if !(ApproxEq::approx_eq(&self.angle, &other.angle)
+            || ApproxEq::approx_eq(&self.angle.signed(), &other.angle.signed()))
         {
             false
         } else {
