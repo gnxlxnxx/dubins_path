@@ -7,7 +7,7 @@
 //!
 //! Every struct defined here is 2 dimensional and uses f64
 
-use euclid::{Point2D, Rotation2D, UnknownUnit};
+use euclid::{approxeq::ApproxEq, Point2D, Rotation2D, UnknownUnit};
 use thiserror::Error;
 
 pub type Angle = euclid::Angle<f64>;
@@ -31,6 +31,23 @@ pub struct Vector {
     pub magnitude: f64,
 }
 
+impl Vector {
+    /// approximate equality to other Vector
+    pub fn approx_eq(&self, other: Self) -> bool {
+        if !ApproxEq::approx_eq(&self.origin, &other.origin) {
+            false
+        } else if !ApproxEq::approx_eq(&self.magnitude, &other.magnitude) {
+            false
+        } else if !ApproxEq::approx_eq(&self.angle, &other.angle)
+            || !ApproxEq::approx_eq(&self.angle.signed(), &other.angle.signed())
+        {
+            false
+        } else {
+            true
+        }
+    }
+}
+
 /// Circle vector (Circle + Angle)
 #[derive(Debug, Copy, Clone)]
 pub struct CircleVector {
@@ -43,6 +60,20 @@ impl CircleVector {
     ///get the length of the circle vector
     pub fn get_length(&self) -> f64 {
         self.angle.radians * self.radius
+    }
+    /// approximate equality to other CircleVector
+    pub fn approx_eq(&self, other: Self) -> bool {
+        if !ApproxEq::approx_eq(&self.center, &other.center) {
+            false
+        } else if !ApproxEq::approx_eq(&self.radius, &other.radius) {
+            false
+        } else if !(ApproxEq::approx_eq(&self.angle, &other.angle)
+            || ApproxEq::approx_eq(&self.angle.signed(), &other.angle.signed()))
+        {
+            false
+        } else {
+            true
+        }
     }
 }
 
@@ -552,8 +583,6 @@ impl RouteCCC {
                 route_ccc.start.center.y + vector_start_center_middle_center.y,
             )
         };
-
-        // TODO: Get the angles
 
         let vector_middle_center_end_center = Vector2D::new(
             route_ccc.end.center.x - route_ccc.middle.center.x,
