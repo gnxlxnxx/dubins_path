@@ -1,18 +1,70 @@
-//! Call all functions with a Vector as argument the vector should contain:
-//!  - the end point as origin
-//!  - the end angle as angle in degrees in clockwise direction (eg. 0° facing north, 90° (π/2) facing east, ...)
-//!  - the circle radius as magnitude
+//! This Crate calculates Dubins Paths
 //!
-//! Start Vector is in the origin facing in positive y-direction
 //!
-//! Every struct defined here is 2 dimensional and uses f64
+//! eg rsr path:
+//!
+//!                                              -----
+//!                                            /-     \
+//!                                          /-/       \
+//!                                       /-- /         \
+//!                                     /-    |         |
+//!                                  /--      |         |
+//!                                /-         |         |
+//!                             /--           \         /
+//!                           /-               \       X goal
+//!                        /--                  \     /
+//!                      /-                      -----
+//!                   /--
+//!                 /-
+//!               -----
+//!              /     \
+//!             /       \
+//!            /         \
+//!            |         |
+//!      start X         |
+//!            |         |
+//!            \         /
+//!             \       /
+//!              \     /
+//!               -----
+//!
+//!
+//! The start point is (0,0) facing in positive y-direction
+//!
+//! The arguments to get a path are
+//!
+//!   - radius: the minimum radius you can drive or respectively the radius you want to drive (f64)
+//!   - end_point: the point you want to end up (Point)
+//!   - end_angle: the angle you want to have in the end (Angle)
+//!
+//! The paths can be categorized into two subsections:
+//!
+//!   - The circle straight circle (CSC) paths:
+//!
+//!     - right straight right (rsr) paths
+//!     - right straight left  (rsl) paths
+//!     - left straight right  (lsr) paths
+//!     - left straight left   (lsl) paths
+//!
+//!   note: rsr and lsl paths can be constructed on every point on the plane,
+//!         rsl and lsr might return an error if the circles overlap each other,
+//!         because then the path cannot be constructed
+//!
+//!   - The circle circle circle (CCC) paths:
+//!
+//!     - right left right (rlr) paths
+//!     - left right left  (lrl) paths
+//!
+//!   note: both paths can return an error if the points are too far apart
+//!
+//!
 
 use euclid::{approxeq::ApproxEq, Point2D, Rotation2D, UnknownUnit};
 use thiserror::Error;
 
 pub type Angle = euclid::Angle<f64>;
 pub type Point = Point2D<f64, UnknownUnit>;
-type Vector2D = euclid::Vector2D<f64, UnknownUnit>;
+pub type Vector = euclid::Vector2D<f64, UnknownUnit>;
 type Rotation = Rotation2D<f64, UnknownUnit, UnknownUnit>;
 
 #[derive(Debug, Error)]
