@@ -1,40 +1,11 @@
 //! This Crate calculates Dubins Paths
 //!
-//!
-//! eg rsr path:
-//!
-//!                                              -----
-//!                                            /-     \
-//!                                          /-/       \
-//!                                       /-- /         \
-//!                                     /-    |         |
-//!                                  /--      |         |
-//!                                /-         |         |
-//!                             /--           \         /
-//!                           /-               \       X goal
-//!                        /--                  \     /
-//!                      /-                      -----
-//!                   /--
-//!                 /-
-//!               -----
-//!              /     \
-//!             /       \
-//!            /         \
-//!            |         |
-//!      start X         |
-//!            |         |
-//!            \         /
-//!             \       /
-//!              \     /
-//!               -----
-//!
-//!
 //! The start point is (0,0) facing in positive y-direction
 //!
 //! The arguments to get a path are
 //!
 //!   - radius: the minimum radius you can drive or respectively the radius you want to drive (f64)
-//!   - end_point: the point you want to end up (Point)
+//!   - end_point: the point you want to end up at (Point)
 //!   - end_angle: the angle you want to have in the end (Angle)
 //!
 //! The paths can be categorized into two subsections:
