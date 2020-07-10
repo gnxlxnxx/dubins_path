@@ -1,5 +1,5 @@
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/gnxlxnxx/dubins_path/Rust?style=for-the-badge)
-![Crates.io](https://img.shields.io/crates/v/dubins_path?style=for-the-badge)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/gnxlxnxx/dubins_path/Rust?style=for-the-badge)](https://github.com/gnxlxnxx/dubins_path/actions)
+[![Crates.io](https://img.shields.io/crates/v/dubins_path?style=for-the-badge)](https://crates.io/crates/dubins_path)
 
 # dubins_path
 
