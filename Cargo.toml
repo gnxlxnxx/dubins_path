@@ -1,7 +1,7 @@
 [package]
 name = "dubins_path"
 description = "Dubins Path pathfinding algorithm"
-version = "0.0.1"
+version = "0.0.2"
 homepage = "https://github.com/gnxlxnxx/dubins_path"
 repository = "https://github.com/gnxlxnxx/dubins_path"
 documentation = "https://docs.rs/dubins_path"
@@ -16,9 +16,6 @@ edition = "2018"
 
 [dependencies]
 thiserror = "1.0"
-
-[dependencies.euclid]
-git = "https://github.com/servo/euclid.git"
-rev = "1a8b95d46fa33978f7a6dcbb7a4c0f2a0550a1c9"
+euclid = "0.20.14"
 
 [dev-dependencies]
