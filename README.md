@@ -1,11 +1,9 @@
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/gnxlxnxx/dubins_path/Rust?style=for-the-badge)
+![Crates.io](https://img.shields.io/crates/v/dubins_path?style=for-the-badge)
+
 # dubins_path
 
 this is a crate which calculates [dubins paths](https://en.wikipedia.org/wiki/Dubins_path)
-
-## Status
-
-- I've tested some easy scenarios if you encounter any problems feel free to open an issue or PR
-- This code is a little messy feel free to PR a cleanup ;)
 
 ## License
 Licensed under either of 
