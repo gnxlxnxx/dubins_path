@@ -4,7 +4,7 @@
 //!
 //! The arguments to get a path are
 //!
-//!   - radius: the minimum radius you can drive or respectively the radius you want to drive (f64)
+//!   - radius: the minimum radius you can drive or respectively the radius you want to drive (T)
 //!   - end_point: the point you want to end up at (Point)
 //!   - end_angle: the angle you want to have in the end (Angle)
 //!
@@ -31,12 +31,13 @@
 //!
 
 use euclid::{approxeq::ApproxEq, Point2D, Rotation2D, UnknownUnit};
+use num_traits;
 use thiserror::Error;
 
-pub type Angle = euclid::Angle<f64>;
-pub type Point = Point2D<f64, UnknownUnit>;
-pub type Vector = euclid::Vector2D<f64, UnknownUnit>;
-type Rotation = Rotation2D<f64, UnknownUnit, UnknownUnit>;
+pub type Angle<T> = euclid::Angle<T>;
+pub type Point<T> = Point2D<T, UnknownUnit>;
+pub type Vector<T> = euclid::Vector2D<T, UnknownUnit>;
+type Rotation<T> = Rotation2D<T, UnknownUnit, UnknownUnit>;
 
 #[derive(Debug, Error)]
 pub enum Error {
@@ -48,12 +49,12 @@ pub enum Error {
 
 /// Vector with origin, angle and magnitude
 #[derive(Debug, Copy, Clone)]
-pub struct StraightPath {
-    pub origin: Point,
-    pub vector: Vector,
+pub struct StraightPath<T> {
+    pub origin: Point<T>,
+    pub vector: Vector<T>,
 }
 
-impl StraightPath {
+impl<T: euclid::approxeq::ApproxEq<T>> StraightPath<T> {
     /// approximate equality to other Vector
     pub fn approx_eq(&self, other: Self) -> bool {
         ApproxEq::approx_eq(&self.vector, &other.vector)
@@ -63,15 +64,37 @@ impl StraightPath {
 
 /// Circle vector (Circle + Angle)
 #[derive(Debug, Copy, Clone)]
-pub struct CirclePath {
-    pub center: Point,
-    pub radius: f64,
-    pub angle: Angle,
+pub struct CirclePath<T>
+where
+    T: std::ops::Mul<T, Output = T>
+        + euclid::approxeq::ApproxEq<T>
+        + std::ops::Rem<Output = T>
+        + std::ops::Sub<Output = T>
+        + std::ops::Add<Output = T>
+        + num_traits::Zero
+        + num_traits::FloatConst
+        + PartialOrd
+        + Copy,
+{
+    pub center: Point<T>,
+    pub radius: T,
+    pub angle: Angle<T>,
 }
 
-impl CirclePath {
+impl<T> CirclePath<T>
+where
+    T: std::ops::Mul<T, Output = T>
+        + euclid::approxeq::ApproxEq<T>
+        + std::ops::Rem<Output = T>
+        + std::ops::Sub<Output = T>
+        + std::ops::Add<Output = T>
+        + num_traits::Zero
+        + num_traits::FloatConst
+        + PartialOrd
+        + Copy,
+{
     ///get the length of the circle vector
-    pub fn get_length(&self) -> f64 {
+    pub fn get_length(&self) -> T {
         self.angle.radians * self.radius
     }
     /// approximate equality to other CirclePath
@@ -92,31 +115,78 @@ impl CirclePath {
 
 /// Route with a start Circle, a tangent straight and a end Circle
 #[derive(Debug, Copy, Clone)]
-pub struct RouteCSC {
-    pub start: CirclePath,
-    pub tangent: StraightPath,
-    pub end: CirclePath,
+pub struct RouteCSC<T>
+where
+    T: std::ops::Mul<T, Output = T>
+        + std::ops::Mul
+        + euclid::approxeq::ApproxEq<T>
+        + std::ops::Rem<Output = T>
+        + std::ops::Sub<Output = T>
+        + std::ops::Add<Output = T>
+        + num_traits::Zero
+        + num_traits::FloatConst
+        + PartialOrd
+        + Copy,
+{
+    pub start: CirclePath<T>,
+    pub tangent: StraightPath<T>,
+    pub end: CirclePath<T>,
 }
 
 /// Route with 3 Circles
 #[derive(Debug, Copy, Clone)]
-pub struct RouteCCC {
-    pub start: CirclePath,
-    pub middle: CirclePath,
-    pub end: CirclePath,
+pub struct RouteCCC<T>
+where
+    T: std::ops::Mul<T, Output = T>
+        + std::ops::Mul
+        + euclid::approxeq::ApproxEq<T>
+        + std::ops::Rem<Output = T>
+        + std::ops::Sub<Output = T>
+        + std::ops::Add<Output = T>
+        + num_traits::Zero
+        + num_traits::FloatConst
+        + PartialOrd
+        + Copy,
+{
+    pub start: CirclePath<T>,
+    pub middle: CirclePath<T>,
+    pub end: CirclePath<T>,
 }
 
 #[derive(Debug, Copy, Clone)]
-pub enum Path {
-    CSC(RouteCSC),
-    CCC(RouteCCC),
+pub enum Path<T>
+where
+    T: std::ops::Mul<T, Output = T>
+        + std::ops::Mul
+        + euclid::approxeq::ApproxEq<T>
+        + std::ops::Rem<Output = T>
+        + std::ops::Sub<Output = T>
+        + std::ops::Add<Output = T>
+        + num_traits::Zero
+        + num_traits::FloatConst
+        + PartialOrd
+        + Copy,
+{
+    CSC(RouteCSC<T>),
+    CCC(RouteCCC<T>),
 }
 
 /// Route with a start Circle, a tangent straight and a end Circle
-impl RouteCSC {
+impl<T> RouteCSC<T>
+where
+    T: std::ops::Add
+        + std::ops::Mul
+        + std::ops::Mul<f64, Output = T>
+        + num_traits::float::FloatConst
+        + num_traits::float::Float
+        + std::cmp::PartialOrd
+        + std::convert::From<f64>
+        + euclid::approxeq::ApproxEq<T>
+        + euclid::Trig,
+{
     /// right straight right route
-    pub fn rsr(radius: f64, end_point: Point, end_angle: Angle) -> Result<Self, Error> {
-        let start_center = Point::new(radius, 0.0);
+    pub fn rsr(radius: T, end_point: Point<T>, end_angle: Angle<T>) -> Result<Self, Error> {
+        let start_center = Point::new(radius, 0.0.into());
 
         // get the center point by adding the end vector to the end point
         // this works because the argument is the angle in positive y direction
@@ -125,7 +195,7 @@ impl RouteCSC {
         let end_center = end_point
             + Rotation::new(end_angle)
                 .inverse()
-                .transform_vector(Vector::new(radius, 0.0));
+                .transform_vector(Vector::new(radius, 0.0.into()));
 
         // get the tangent pitch which is the same as the pitch between the two
         // circle centers since our circles have the same radius
@@ -137,7 +207,7 @@ impl RouteCSC {
         // start circle center x value
         // the angle would be rotated by π so to prevent that:
         if end_center.x < start_center.x {
-            tangent_angle += Angle::pi();
+            tangent_angle = tangent_angle + Angle::pi();
         }
 
         // get the tangent magnitude this, again, is the same as the distance
@@ -152,7 +222,8 @@ impl RouteCSC {
         // get the tangent origin by moving the vector from the start circle center
         // π/2 to it's own direction and the magnitude of the circle radius
         let tangent_origin = start_center
-            + Rotation::new(Angle::pi() - end_angle).transform_vector(Vector::new(radius, 0.0));
+            + Rotation::new(Angle::pi() - end_angle)
+                .transform_vector(Vector::new(radius, 0.0.into()));
 
         // get the angle of the start circle
         // the angle where we start from the tangent equals the one we finish
@@ -178,15 +249,16 @@ impl RouteCSC {
     }
 
     /// left straight left route
-    pub fn lsl(radius: f64, end_point: Point, end_angle: Angle) -> Result<Self, Error> {
-        let start_center = Point::new(-radius, 0.0);
+    pub fn lsl(radius: T, end_point: Point<T>, end_angle: Angle<T>) -> Result<Self, Error> {
+        let start_center = Point::new(-radius, 0.0.into());
 
         // get the center point by adding the end vector to the end point
         // we have to rotate the vector π (π/2 because the given angle is from the y axis
         // and π/2 more to not get the tangent but the vector to the center point)
         // and again we have to use the counter clockwise direction
         let end_center = end_point
-            + Rotation::new(Angle::pi() - end_angle).transform_vector(Vector::new(radius, 0.0));
+            + Rotation::new(Angle::pi() - end_angle)
+                .transform_vector(Vector::new(radius, 0.0.into()));
 
         // get the tangent pitch which is the same as the pitch between the two
         // circle centers since our circles have the same radius
@@ -213,8 +285,8 @@ impl RouteCSC {
 
         // get the tangent origin by moving the vector from the start circle center
         // π/2 to it's own direction and the magnitude of the circle radius
-        let tangent_origin =
-            start_center + Rotation::new(start_angle).transform_vector(Vector::new(radius, 0.0));
+        let tangent_origin = start_center
+            + Rotation::new(start_angle).transform_vector(Vector::new(radius, 0.0.into()));
 
         // get the angle of the start circle
         // the angle where we start from the tangent equals the one we finish
@@ -240,20 +312,21 @@ impl RouteCSC {
     }
 
     /// right straight left route
-    pub fn rsl(radius: f64, end_point: Point, end_angle: Angle) -> Result<Self, Error> {
-        let start_center = Point::new(radius, 0.0);
+    pub fn rsl(radius: T, end_point: Point<T>, end_angle: Angle<T>) -> Result<Self, Error> {
+        let start_center = Point::new(radius, 0.0.into());
 
         // get the center point by adding the end vector to the end point
         // we have to rotate the vector π (π/2 because the given angle is from the y axis
         // and π/2 more to not get the tangent but the vector to the center point)
         // and again we have to use the counter clockwise direction
         let end_center = end_point
-            + Rotation::new(Angle::pi() - end_angle).transform_vector(Vector::new(radius, 0.0));
+            + Rotation::new(Angle::pi() - end_angle)
+                .transform_vector(Vector::new(radius, 0.0.into()));
 
         // check if inside tangent can even be constructed
         if ((end_center.x - start_center.x).powi(2) + (end_center.y - start_center.y).powi(2))
             .sqrt()
-            < 2.0 * radius
+            < radius * 2.0
         {
             return Err(Error::CirclesTooClose);
         }
@@ -261,23 +334,23 @@ impl RouteCSC {
         // get the tangent length via some simple trigonometry
         let tangent_magnitude = ((end_center.x - start_center.x).powi(2)
             + (end_center.y - start_center.y).powi(2)
-            - (2.0 * radius).powi(2))
+            - (radius * 2.0).powi(2))
         .sqrt();
 
         // tangent middle is the same as the middle of the straight from the center of the start
-        let tangent_middle = end_center.lerp(start_center, 0.5);
+        let tangent_middle = end_center.lerp(start_center, 0.5.into());
 
         // get the tangent angle
         let mut tangent_angle = Angle::radians(
             ((end_center.y - tangent_middle.y) / (end_center.x - tangent_middle.x)).atan()
-                - (2.0 * radius / tangent_magnitude).atan(),
+                - (radius * 2.0 / tangent_magnitude).atan(),
         );
 
         // if the end circle center x value is smaller than the
         // start circle center x value
         // the angle would be π rotated so to prevent that:
         if end_center.x < start_center.x {
-            tangent_angle += Angle::pi();
+            tangent_angle = tangent_angle + Angle::pi();
         }
 
         // get the angle of the start circle
@@ -286,7 +359,8 @@ impl RouteCSC {
         // get the tangent origin by moving the vector from the start circle center
         // along its right angle vector
         let tangent_origin = start_center
-            + Rotation::new(Angle::pi() - start_angle).transform_vector(Vector::new(radius, 0.0));
+            + Rotation::new(Angle::pi() - start_angle)
+                .transform_vector(Vector::new(radius, 0.0.into()));
 
         // get the angle of the end circle
         let end_angle = ((Angle::frac_pi_2() - end_angle) - tangent_angle).positive();
@@ -310,8 +384,8 @@ impl RouteCSC {
     }
 
     /// left straight right route
-    pub fn lsr(radius: f64, end_point: Point, end_angle: Angle) -> Result<Self, Error> {
-        let start_center = Point::new(-radius, 0.0);
+    pub fn lsr(radius: T, end_point: Point<T>, end_angle: Angle<T>) -> Result<Self, Error> {
+        let start_center = Point::new(-radius, 0.0.into());
 
         // get the center point by adding the end vector to the end point
         // this works because the argument is the angle in positive y direction
@@ -320,12 +394,12 @@ impl RouteCSC {
         let end_center = end_point
             + Rotation::new(end_angle)
                 .inverse()
-                .transform_vector(Vector::new(radius, 0.0));
+                .transform_vector(Vector::new(radius, 0.0.into()));
 
         // check if inside tangent can even be constructed
         if ((end_center.x - start_center.x).powi(2) + (end_center.y - start_center.y).powi(2))
             .sqrt()
-            < 2.0 * radius
+            < radius * 2.0
         {
             return Err(Error::CirclesTooClose);
         }
@@ -333,23 +407,23 @@ impl RouteCSC {
         // get the tangent length via some simple trigonometry
         let tangent_magnitude = ((end_center.x - start_center.x).powi(2)
             + (end_center.y - start_center.y).powi(2)
-            - (2.0 * radius).powi(2))
+            - (radius * 2.0).powi(2))
         .sqrt();
 
         // tangent middle is the same as the middle of the straight from the center of the start
-        let tangent_middle = end_center.lerp(start_center, 0.5);
+        let tangent_middle = end_center.lerp(start_center, 0.5.into());
 
         // get the tangent angle
         let mut tangent_angle = Angle::radians(
             ((end_center.y - tangent_middle.y) / (end_center.x - tangent_middle.x)).atan()
-                + (2.0 * radius / tangent_magnitude).atan(),
+                + (radius * 2.0 / tangent_magnitude).atan(),
         );
 
         // if the end circle center x value is smaller than the
         // start circle center x value
         // the angle would rotated by π so to prevent that:
         if end_center.x < start_center.x {
-            tangent_angle += Angle::pi();
+            tangent_angle = tangent_angle + Angle::pi();
         }
 
         // get the angle of the start circle
@@ -357,8 +431,8 @@ impl RouteCSC {
 
         // get the tangent origin by moving the vector from the start circle center
         // π/2 to it's own direction and the magnitude of the circle radius
-        let tangent_origin =
-            start_center + Rotation::new(start_angle).transform_vector(Vector::new(radius, 0.0));
+        let tangent_origin = start_center
+            + Rotation::new(start_angle).transform_vector(Vector::new(radius, 0.0.into()));
 
         // get the angle of the end circle
         let end_angle = ((Angle::frac_pi_2() - end_angle) - tangent_angle).positive();
@@ -382,12 +456,16 @@ impl RouteCSC {
     }
 
     /// get the length of the path
-    pub fn get_length(&self) -> f64 {
+    pub fn get_length(&self) -> T {
         self.start.get_length() + self.tangent.vector.length() + self.end.get_length()
     }
 
     /// get the shortest circle straight circle route
-    pub fn get_shortest(radius: f64, end_point: Point, end_angle: Angle) -> Result<Self, Error> {
+    pub fn get_shortest(
+        radius: T,
+        end_point: Point<T>,
+        end_angle: Angle<T>,
+    ) -> Result<Self, Error> {
         let mut route_csc;
 
         let route_rsr = Self::rsr(radius, end_point, end_angle).unwrap();
@@ -415,10 +493,21 @@ impl RouteCSC {
 }
 
 /// Route with 3 Circles
-impl RouteCCC {
+impl<T> RouteCCC<T>
+where
+    T: std::ops::Add
+        + std::ops::Mul
+        + std::ops::Mul<f64, Output = T>
+        + num_traits::float::FloatConst
+        + num_traits::float::Float
+        + std::cmp::PartialOrd
+        + std::convert::From<f64>
+        + euclid::approxeq::ApproxEq<T>
+        + euclid::Trig,
+{
     /// right left right route (not working yet)
-    pub fn rlr(radius: f64, end_point: Point, end_angle: Angle) -> Result<Self, Error> {
-        let start_center = Point::new(radius, 0.0);
+    pub fn rlr(radius: T, end_point: Point<T>, end_angle: Angle<T>) -> Result<Self, Error> {
+        let start_center = Point::new(radius, 0.0.into());
 
         // get the center point by adding the end vector to the end point
         // this works because the argument is the angle in positive y direction
@@ -427,17 +516,17 @@ impl RouteCCC {
         let end_center = end_point
             + Rotation::new(end_angle)
                 .inverse()
-                .transform_vector(Vector::new(radius, 0.0));
+                .transform_vector(Vector::new(radius, 0.0.into()));
 
         // check if path can be constructed or if the circles are too far apart
         if ((end_center.x - start_center.x).powi(2) + (end_center.y - start_center.y).powi(2))
             .sqrt()
-            > (4.0 * radius)
+            > (radius * 4.0)
         {
             return Err(Error::CirclesTooFarApart);
         }
 
-        let vector_start_center_middle_center: Vector;
+        let vector_start_center_middle_center: Vector<T>;
 
         let middle_center = {
             let vector_start_center_end_center =
@@ -445,11 +534,11 @@ impl RouteCCC {
 
             let vector_start_center_middle_center_angle =
                 vector_start_center_end_center.angle_from_x_axis().radians
-                    + (vector_start_center_end_center.length() / (4.0 * radius)).acos();
+                    + (vector_start_center_end_center.length() / (radius * 4.0)).acos();
 
             vector_start_center_middle_center = Vector::new(
-                (2.0 * radius) * vector_start_center_middle_center_angle.cos(),
-                (2.0 * radius) * vector_start_center_middle_center_angle.sin(),
+                (radius * 2.0) * euclid::Trig::cos(vector_start_center_middle_center_angle),
+                (radius * 2.0) * euclid::Trig::sin(vector_start_center_middle_center_angle),
             );
 
             Point::new(
@@ -499,25 +588,26 @@ impl RouteCCC {
     }
 
     /// left right left route (not working yet)
-    pub fn lrl(radius: f64, end_point: Point, end_angle: Angle) -> Result<Self, Error> {
-        let start_center = Point::new(-radius, 0.0);
+    pub fn lrl(radius: T, end_point: Point<T>, end_angle: Angle<T>) -> Result<Self, Error> {
+        let start_center = Point::new(-radius, 0.0.into());
 
         // get the center point by adding the end vector to the end point
         // we have to rotate the vector π (π/2 because the given angle is from the y axis
         // and π/2 more to not get the tangent but the vector to the center point)
         // and again we have to use the counter clockwise direction
         let end_center = end_point
-            + Rotation::new(Angle::pi() - end_angle).transform_vector(Vector::new(radius, 0.0));
+            + Rotation::new(Angle::pi() - end_angle)
+                .transform_vector(Vector::new(radius, 0.0.into()));
 
         // check if path can be constructed or if the circles are too far apart
         if ((end_center.x - start_center.x).powi(2) + (end_center.y - start_center.y).powi(2))
             .sqrt()
-            > (4.0 * radius)
+            > (radius * 4.0)
         {
             return Err(Error::CirclesTooFarApart);
         }
 
-        let vector_start_center_middle_center: Vector;
+        let vector_start_center_middle_center: Vector<T>;
 
         let middle_center = {
             let vector_start_center_end_center =
@@ -525,11 +615,11 @@ impl RouteCCC {
 
             let vector_start_center_middle_center_angle =
                 vector_start_center_end_center.angle_from_x_axis().radians
-                    - (vector_start_center_end_center.length() / (4.0 * radius)).acos();
+                    - (vector_start_center_end_center.length() / (radius * 4.0)).acos();
 
             vector_start_center_middle_center = Vector::new(
-                (2.0 * radius) * vector_start_center_middle_center_angle.cos(),
-                (2.0 * radius) * vector_start_center_middle_center_angle.sin(),
+                (radius * 2.0) * euclid::Trig::cos(vector_start_center_middle_center_angle),
+                (radius * 2.0) * euclid::Trig::sin(vector_start_center_middle_center_angle),
             );
 
             Point::new(
@@ -575,12 +665,16 @@ impl RouteCCC {
     }
 
     /// get the length of the path
-    pub fn get_length(&self) -> f64 {
+    pub fn get_length(&self) -> T {
         self.start.get_length() + self.middle.get_length() + self.end.get_length()
     }
 
     /// get the shortest circle circle circle route
-    pub fn get_shortest(radius: f64, end_point: Point, end_angle: Angle) -> Result<Self, Error> {
+    pub fn get_shortest(
+        radius: T,
+        end_point: Point<T>,
+        end_angle: Angle<T>,
+    ) -> Result<Self, Error> {
         let route_rlr = Self::rlr(radius, end_point, end_angle);
         let route_lrl = Self::lrl(radius, end_point, end_angle);
 
@@ -603,7 +697,18 @@ impl RouteCCC {
 }
 
 /// get the shortest path
-pub fn get_shortest(radius: f64, end_point: Point, end_angle: Angle) -> Path {
+pub fn get_shortest<T>(radius: T, end_point: Point<T>, end_angle: Angle<T>) -> Path<T>
+where
+    T: std::ops::Add
+        + std::ops::Mul
+        + std::ops::Mul<f64, Output = T>
+        + num_traits::float::FloatConst
+        + num_traits::float::Float
+        + std::cmp::PartialOrd
+        + std::convert::From<f64>
+        + euclid::approxeq::ApproxEq<T>
+        + euclid::Trig,
+{
     let route_csc = RouteCSC::get_shortest(radius, end_point, end_angle).unwrap();
     let route_ccc = RouteCCC::get_shortest(radius, end_point, end_angle);
     if let Ok(route_ccc) = route_ccc {
