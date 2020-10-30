@@ -16,6 +16,6 @@ edition = "2018"
 
 [dependencies]
 thiserror = "1.0"
-euclid = "0.20.14"
+euclid = "0.21.0"
 
 [dev-dependencies]
