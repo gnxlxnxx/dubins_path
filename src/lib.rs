@@ -233,7 +233,7 @@ where
         // get the tangent origin by moving the vector from the start circle center
         // π/2 to it's own direction and the magnitude of the circle radius
         let tangent_origin = start_center
-            + Rotation::new(Angle::pi() - end_angle)
+            + Rotation::new(Angle::pi() - start_angle)
                 .transform_vector(Vector::new(radius, 0.0.into()));
 
         // get the angle of the start circle
@@ -480,9 +480,9 @@ where
         let mut route_csc;
 
         let route_rsr = Self::rsr(radius, end_point, end_angle).unwrap();
-        let route_lsl = Self::rsr(radius, end_point, end_angle).unwrap();
-        let route_lsr = Self::rsr(radius, end_point, end_angle);
-        let route_rsl = Self::rsr(radius, end_point, end_angle);
+        let route_lsl = Self::lsl(radius, end_point, end_angle).unwrap();
+        let route_lsr = Self::lsr(radius, end_point, end_angle);
+        let route_rsl = Self::rsl(radius, end_point, end_angle);
 
         route_csc = route_rsr;
         if route_lsl.get_length() < route_csc.get_length() {
