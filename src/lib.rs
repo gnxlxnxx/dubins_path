@@ -30,13 +30,24 @@
 //!
 //!
 
-use euclid::{approxeq::ApproxEq, Point2D, Rotation2D, UnknownUnit};
-use num_traits;
+use std::{
+    cmp::PartialOrd,
+    convert,
+    ops::{Add, Mul, Rem, Sub},
+};
+
+use convert::From;
+pub use euclid::Angle;
+use euclid::{approxeq::ApproxEq, Point2D, Rotation2D, Trig, UnknownUnit, Vector2D};
+use num_traits::{
+    self,
+    float::{Float, FloatConst},
+    Zero,
+};
 use thiserror::Error;
 
-pub type Angle<T> = euclid::Angle<T>;
 pub type Point<T> = Point2D<T, UnknownUnit>;
-pub type Vector<T> = euclid::Vector2D<T, UnknownUnit>;
+pub type Vector<T> = Vector2D<T, UnknownUnit>;
 type Rotation<T> = Rotation2D<T, UnknownUnit, UnknownUnit>;
 
 #[derive(Debug, Error)]
@@ -54,7 +65,7 @@ pub struct StraightPath<T> {
     pub vector: Vector<T>,
 }
 
-impl<T: euclid::approxeq::ApproxEq<T>> StraightPath<T> {
+impl<T: ApproxEq<T>> StraightPath<T> {
     /// approximate equality to other Vector
     pub fn approx_eq(&self, other: Self) -> bool {
         ApproxEq::approx_eq(&self.vector, &other.vector)
@@ -66,13 +77,13 @@ impl<T: euclid::approxeq::ApproxEq<T>> StraightPath<T> {
 #[derive(Debug, Copy, Clone)]
 pub struct CirclePath<T>
 where
-    T: std::ops::Mul<T, Output = T>
-        + euclid::approxeq::ApproxEq<T>
-        + std::ops::Rem<Output = T>
-        + std::ops::Sub<Output = T>
-        + std::ops::Add<Output = T>
-        + num_traits::Zero
-        + num_traits::FloatConst
+    T: Mul<T, Output = T>
+        + ApproxEq<T>
+        + Rem<Output = T>
+        + Sub<Output = T>
+        + Add<Output = T>
+        + Zero
+        + FloatConst
         + PartialOrd
         + Copy,
 {
@@ -83,13 +94,13 @@ where
 
 impl<T> CirclePath<T>
 where
-    T: std::ops::Mul<T, Output = T>
-        + euclid::approxeq::ApproxEq<T>
-        + std::ops::Rem<Output = T>
-        + std::ops::Sub<Output = T>
-        + std::ops::Add<Output = T>
-        + num_traits::Zero
-        + num_traits::FloatConst
+    T: Mul<T, Output = T>
+        + ApproxEq<T>
+        + Rem<Output = T>
+        + Sub<Output = T>
+        + Add<Output = T>
+        + Zero
+        + FloatConst
         + PartialOrd
         + Copy,
 {
@@ -117,14 +128,14 @@ where
 #[derive(Debug, Copy, Clone)]
 pub struct RouteCSC<T>
 where
-    T: std::ops::Mul<T, Output = T>
-        + std::ops::Mul
-        + euclid::approxeq::ApproxEq<T>
-        + std::ops::Rem<Output = T>
-        + std::ops::Sub<Output = T>
-        + std::ops::Add<Output = T>
-        + num_traits::Zero
-        + num_traits::FloatConst
+    T: Mul<T, Output = T>
+        + Mul
+        + ApproxEq<T>
+        + Rem<Output = T>
+        + Sub<Output = T>
+        + Add<Output = T>
+        + Zero
+        + FloatConst
         + PartialOrd
         + Copy,
 {
@@ -137,14 +148,14 @@ where
 #[derive(Debug, Copy, Clone)]
 pub struct RouteCCC<T>
 where
-    T: std::ops::Mul<T, Output = T>
-        + std::ops::Mul
-        + euclid::approxeq::ApproxEq<T>
-        + std::ops::Rem<Output = T>
-        + std::ops::Sub<Output = T>
-        + std::ops::Add<Output = T>
-        + num_traits::Zero
-        + num_traits::FloatConst
+    T: Mul<T, Output = T>
+        + Mul
+        + ApproxEq<T>
+        + Rem<Output = T>
+        + Sub<Output = T>
+        + Add<Output = T>
+        + Zero
+        + FloatConst
         + PartialOrd
         + Copy,
 {
@@ -156,14 +167,14 @@ where
 #[derive(Debug, Copy, Clone)]
 pub enum Path<T>
 where
-    T: std::ops::Mul<T, Output = T>
-        + std::ops::Mul
-        + euclid::approxeq::ApproxEq<T>
-        + std::ops::Rem<Output = T>
-        + std::ops::Sub<Output = T>
-        + std::ops::Add<Output = T>
-        + num_traits::Zero
-        + num_traits::FloatConst
+    T: Mul<T, Output = T>
+        + Mul
+        + ApproxEq<T>
+        + Rem<Output = T>
+        + Sub<Output = T>
+        + Add<Output = T>
+        + Zero
+        + FloatConst
         + PartialOrd
         + Copy,
 {
@@ -174,15 +185,15 @@ where
 /// Route with a start Circle, a tangent straight and a end Circle
 impl<T> RouteCSC<T>
 where
-    T: std::ops::Add
-        + std::ops::Mul
-        + std::ops::Mul<f64, Output = T>
-        + num_traits::float::FloatConst
-        + num_traits::float::Float
-        + std::cmp::PartialOrd
-        + std::convert::From<f64>
-        + euclid::approxeq::ApproxEq<T>
-        + euclid::Trig,
+    T: Add
+        + Mul
+        + Mul<f64, Output = T>
+        + FloatConst
+        + Float
+        + PartialOrd
+        + From<f64>
+        + ApproxEq<T>
+        + Trig,
 {
     /// right straight right route
     pub fn rsr(radius: T, end_point: Point<T>, end_angle: Angle<T>) -> Result<Self, Error> {
@@ -233,7 +244,7 @@ where
         Ok(Self {
             start: CirclePath {
                 center: start_center,
-                radius: radius,
+                radius,
                 angle: start_angle,
             },
             tangent: StraightPath {
@@ -242,7 +253,7 @@ where
             },
             end: CirclePath {
                 center: end_center,
-                radius: radius,
+                radius,
                 angle: end_angle,
             },
         })
@@ -296,7 +307,7 @@ where
         Ok(Self {
             start: CirclePath {
                 center: start_center,
-                radius: radius,
+                radius,
                 angle: start_angle,
             },
             tangent: StraightPath {
@@ -305,7 +316,7 @@ where
             },
             end: CirclePath {
                 center: end_center,
-                radius: radius,
+                radius,
                 angle: end_angle,
             },
         })
@@ -368,7 +379,7 @@ where
         Ok(Self {
             start: CirclePath {
                 center: start_center,
-                radius: radius,
+                radius,
                 angle: start_angle,
             },
             tangent: StraightPath {
@@ -377,7 +388,7 @@ where
             },
             end: CirclePath {
                 center: end_center,
-                radius: radius,
+                radius,
                 angle: end_angle,
             },
         })
@@ -440,7 +451,7 @@ where
         Ok(Self {
             start: CirclePath {
                 center: start_center,
-                radius: radius,
+                radius,
                 angle: start_angle,
             },
             tangent: StraightPath {
@@ -449,7 +460,7 @@ where
             },
             end: CirclePath {
                 center: end_center,
-                radius: radius,
+                radius,
                 angle: end_angle,
             },
         })
@@ -495,15 +506,15 @@ where
 /// Route with 3 Circles
 impl<T> RouteCCC<T>
 where
-    T: std::ops::Add
-        + std::ops::Mul
-        + std::ops::Mul<f64, Output = T>
-        + num_traits::float::FloatConst
-        + num_traits::float::Float
-        + std::cmp::PartialOrd
-        + std::convert::From<f64>
-        + euclid::approxeq::ApproxEq<T>
-        + euclid::Trig,
+    T: Add
+        + Mul
+        + Mul<f64, Output = T>
+        + FloatConst
+        + Float
+        + PartialOrd
+        + From<f64>
+        + ApproxEq<T>
+        + Trig,
 {
     /// right left right route (not working yet)
     pub fn rlr(radius: T, end_point: Point<T>, end_angle: Angle<T>) -> Result<Self, Error> {
@@ -537,8 +548,8 @@ where
                     + (vector_start_center_end_center.length() / (radius * 4.0)).acos();
 
             vector_start_center_middle_center = Vector::new(
-                (radius * 2.0) * euclid::Trig::cos(vector_start_center_middle_center_angle),
-                (radius * 2.0) * euclid::Trig::sin(vector_start_center_middle_center_angle),
+                (radius * 2.0) * Trig::cos(vector_start_center_middle_center_angle),
+                (radius * 2.0) * Trig::sin(vector_start_center_middle_center_angle),
             );
 
             Point::new(
@@ -571,17 +582,17 @@ where
         Ok(Self {
             start: CirclePath {
                 center: start_center,
-                radius: radius,
+                radius,
                 angle: start_angle,
             },
             middle: CirclePath {
                 center: middle_center,
-                radius: radius,
+                radius,
                 angle: middle_angle,
             },
             end: CirclePath {
                 center: end_center,
-                radius: radius,
+                radius,
                 angle: end_angle,
             },
         })
@@ -618,8 +629,8 @@ where
                     - (vector_start_center_end_center.length() / (radius * 4.0)).acos();
 
             vector_start_center_middle_center = Vector::new(
-                (radius * 2.0) * euclid::Trig::cos(vector_start_center_middle_center_angle),
-                (radius * 2.0) * euclid::Trig::sin(vector_start_center_middle_center_angle),
+                (radius * 2.0) * Trig::cos(vector_start_center_middle_center_angle),
+                (radius * 2.0) * Trig::sin(vector_start_center_middle_center_angle),
             );
 
             Point::new(
@@ -648,17 +659,17 @@ where
         Ok(Self {
             start: CirclePath {
                 center: start_center,
-                radius: radius,
+                radius,
                 angle: start_angle,
             },
             middle: CirclePath {
                 center: middle_center,
-                radius: radius,
+                radius,
                 angle: middle_angle,
             },
             end: CirclePath {
                 center: end_center,
-                radius: radius,
+                radius,
                 angle: end_angle,
             },
         })
@@ -699,15 +710,15 @@ where
 /// get the shortest path
 pub fn get_shortest<T>(radius: T, end_point: Point<T>, end_angle: Angle<T>) -> Path<T>
 where
-    T: std::ops::Add
-        + std::ops::Mul
-        + std::ops::Mul<f64, Output = T>
-        + num_traits::float::FloatConst
-        + num_traits::float::Float
-        + std::cmp::PartialOrd
-        + std::convert::From<f64>
-        + euclid::approxeq::ApproxEq<T>
-        + euclid::Trig,
+    T: Add
+        + Mul
+        + Mul<f64, Output = T>
+        + FloatConst
+        + Float
+        + PartialOrd
+        + From<f64>
+        + ApproxEq<T>
+        + Trig,
 {
     let route_csc = RouteCSC::get_shortest(radius, end_point, end_angle).unwrap();
     let route_ccc = RouteCCC::get_shortest(radius, end_point, end_angle);
