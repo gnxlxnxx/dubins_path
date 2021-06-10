@@ -35,7 +35,7 @@ mod tests {
         let radius = 0.5;
         let end_point = Point::new(-7.0 * radius, 0.0);
         let end_angle = Angle::zero();
-        RouteCCC::rlr(radius, end_point, end_angle).unwrap();
+        RouteCCC::lrl(radius, end_point, end_angle).unwrap();
     }
 
     #[test]
